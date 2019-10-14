@@ -1,4 +1,4 @@
-name, & class, & prec, & recall, & acc, & k\\
+name & class & prec & recall & acc & k\\
 1 & 0 & 0.0 & 0.0 & 0.5425 & 10\\
 1 & 1 & 0.0 & 0.0 & 0.5425 & 10\\
 1 & 2 & 0.0 & 0.0 & 0.5425 & 10\\
