@@ -49,21 +49,21 @@ def test(dataset, m, d, neuron, bias, name, its):
     ds = dataset[:, :d]
     labels = dataset[:, d:]
 
-    predictions = np.zeros((m, ds.shape[0]), dtype=int)
+    predictions = np.zeros((ds.shape[0], m), dtype=int)
 
 
     ps = np.array([activation(x, neuron, bias) for x in ds])
 
     for i in range(len(ps)):
         mx = np.argmax(ps[i])
-        for j in range(labels.shape[1]):
-            ps[i][j] = 1 if j == mx else 0
+        predictions[i][mx] = 1
 
     for i in range(m):
         tp = fp = tn = fn = 0
 
         for pred, label in zip(ps, labels):
-            p, l = int(pred[j]), int(label[j])
+            p = 1 if pred[i] > .5 else 0
+            l = int(label[i])
             
             if p == 1 and l == 1:
                 tp += 1
@@ -74,14 +74,15 @@ def test(dataset, m, d, neuron, bias, name, its):
             elif p == 0 and l == 1:
                 fn += 1
 
-        prec = tp / float(tp + fp)
-        recall = tp / float(tp + fn)
+        # print(tp, fp, tn, fn)
+        prec = tp / float(tp + fp) if tp + fp > 0 else "N/A"
+        recall = tp / float(tp + fn) if tp + fn > 0 else "N/A"
         acc = (tp + tn) / float(tp + tn + fp + fn)
-        print(name, i, prec, recall, acc, its)
+        print(name, i, prec, recall, acc, its, sep=" & ", end=" \\\\\n")
 
     hit = miss = 0
     for i in range(len(ps)):
-        if np.argmax(ps[i]) == np.argmax(labels[i]):
+        if np.argmax(predictions[i]) == np.argmax(labels[i]):
             hit += 1
         else:
             miss += 1
