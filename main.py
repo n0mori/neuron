@@ -9,12 +9,12 @@ def sig(x):
 
 
 def activation(x, weights):
-    result = np.matmul(x[:-1], weights[:-1]) + weights[-1]
+    result = np.matmul(weights[:-1], x[:-1]) + weights[-1]
     return sig(result)
 
 
 def err(d, y):
-    return (2 * y  - 2 * d) * (y * (1 - y)) 
+    return (2 * y - 2 * d) * (y * (1 - y)) 
 
 
 def train(dataset, reps):
@@ -25,13 +25,12 @@ def train(dataset, reps):
         idx = np.random.randint(len(dataset))
         x = dataset[idx]
 
-        y = activation(dataset[idx], theta)
-        e = err(x[-1], y)
-
-        for i in range(len(theta) - 1):
-            theta[i] = theta[i] - lr * e * theta[i]
+        for i in range(len(theta[:-1])):
+            y = activation(x, theta)
+            theta[i] = theta[i] - lr * err(x[-1], y) * x[i]
         
-        theta[-1] = theta[-1] - lr * e
+        y = activation(x, theta)
+        theta[-1] = theta[-1] - lr * err(x[-1], y)
 
     return theta
 
@@ -56,17 +55,22 @@ def test(dataset, neuron, its):
     prec = tp / float(tp + fp)
     recall = tp / float(tp + fn)
     acc = (tp + tn) / float(tp + tn + fp + fn)
-
+    
+    print(neuron)
+    print(its, tp, fp, tn, fn)
     print(its, prec, recall, acc)
 
 
 def main():
     name = sys.argv[1]
+    # np.random.seed(1570823700)
 
     dataset = np.genfromtxt(f'dataset{name}_treinamento.csv', delimiter=',')
     t = np.genfromtxt(f'dataset{name}_teste.csv', delimiter=',')
     
-    neurons = [test(dataset, train(dataset, i), i) for i in [10, 100, 1000, 10000]]
+    neuron = train(dataset, 10000)
+    test(t, neuron, 10000)
+    #neurons = [test(dataset, train(dataset, i), i) for i in [10000]]
 
 
 if __name__ == "__main__":
